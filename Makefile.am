@@ -15,8 +15,8 @@ orp_LDADD = ${FFMPEG_LIBS}
 
 install-data-local:
 	@./keys/keys$(EXEEXT)
-	$(MKDIR_P) $(datadir)/@PACKAGE@
-	$(INSTALL_DATA) keys.orp $(datadir)/@PACKAGE@
+	$(MKDIR_P) $(DESTDIR)$(datadir)/@PACKAGE@
+	$(INSTALL_DATA) keys.orp $(DESTDIR)$(datadir)/@PACKAGE@
 
 docdir = $(datadir)/doc/@PACKAGE@
 doc_DATA = AUTHORS README.md
