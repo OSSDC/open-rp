@@ -36,6 +36,10 @@
 #include "launch.h"
 #include "font.h"
 
+#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
+#endif
+
 static void orpOutput(const char *format, va_list ap)
 {
 	static SDL_mutex *lock = NULL;
@@ -553,7 +557,7 @@ static Sint32 orpThreadVideoDecode(void *config)
 
 	SDL_LockMutex(orpAVMutex);
 	AVCodecContext *context = avcodec_alloc_context3(_config->codec);
-	if (avcodec_open(context, _config->codec) < 0) {
+	if (avcodec_open2(context, _config->codec, NULL) < 0) {
 		SDL_UnlockMutex(orpAVMutex);
 		return -1;
 	}
@@ -873,7 +877,7 @@ orpAudioFeed_GetFrame:
 static AVCodecContext *orpInitAudioCodec(AVCodec *codec, Sint32 channels, Sint32 sample_rate, Sint32 bit_rate)
 {
 	SDL_LockMutex(orpAVMutex);
-	AVCodecContext *context = avcodec_alloc_context();
+	AVCodecContext *context = avcodec_alloc_context3(codec);
 	context->channels = channels;
 	context->sample_rate = sample_rate;
 	if (codec->id == CODEC_ID_ATRAC3) {
@@ -901,7 +905,7 @@ static AVCodecContext *orpInitAudioCodec(AVCodec *codec, Sint32 channels, Sint32
 		context->bit_rate = bit_rate;
 	}
 
-	if (avcodec_open(context, codec) < 0) {
+	if (avcodec_open2(context, codec, NULL) < 0) {
 		if (codec->id == CODEC_ID_ATRAC3) av_free(context->extradata);
 		av_free(context);
 		SDL_UnlockMutex(orpAVMutex);
